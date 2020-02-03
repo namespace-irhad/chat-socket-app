@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  </head>
+  <body>
+  <ul id="message-container" class="list-group">
+  </ul>
+
+  <form id = "send-container">
+    <div  class="form-group">
+      <label for="exampleFormControlTextarea1">Chat Room</label>
+      <textarea class="form-control" id="message-input" rows="3"></textarea>
+    </div>
+    <button type="submit" id="send-button" class="btn btn-primary mb-2">Posalji</button>
+  </form>
+  </body>
+<script>
+  const socket = io('http://192.168.0.19:3000');
+  const messageForm = document.getElementById('send-container');
+  const messageInput = document.getElementById('message-input');
+  const messageContainer = document.getElementById('message-container');
+
+  var naziv;
+  const ime = prompt("Unesi svoje ime: ");
+  socket.emit('ime-usera', ime);
+
+  socket.on('poruka', data => {
+    console.log('ulazi' + data);
+        appendMessage(data);
+  })
+
+  socket.on('user-konekcija', ime => {
+    naziv = ime;
+  })
+  messageForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const message = messageInput.value;
+    socket.emit('send-chat-message', message);
+    messageInput.value = '';
+  })
+
+  function appendMessage(message) {
+    const messageElement = document.createElement('li');
+    messageElement.className = "list-group-item";
+    messageElement.appendChild(document.createTextNode(message.ime + ": " + message.message));
+    messageContainer.appendChild(messageElement);
+  }
+
+</script>
+</html>
