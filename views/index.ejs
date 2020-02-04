@@ -2,11 +2,23 @@
 <html>
   <head>
     <title><%= title %></title>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel='stylesheet' href='/stylesheets/style.css' />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
   </head>
   <body>
+  <div class="container container-box">
+    <div class="jumbotron text-white bg-info jumbotron-fluid">
+      <div class="container">
+        <h1 class="display-4">Messaging Board</h1>
+        <p class="lead">Write Something.</p>
+      </div>
+    </div>
+
   <ul id="message-container" class="list-group">
   </ul>
 
@@ -15,9 +27,14 @@
       <label for="exampleFormControlTextarea1">Chat Room</label>
       <textarea class="form-control" id="message-input" rows="3"></textarea>
     </div>
-    <button type="submit" id="send-button" class="btn btn-primary mb-2">Posalji</button>
+    <button type="submit" id="send-button" class="btn btn-primary mb-2">Write</button>
   </form>
+  </div>
   </body>
+  <script
+          src="https://code.jquery.com/jquery-3.4.1.slim.js"
+          integrity="sha256-BTlTdQO9/fascB1drekrDVkaKd9PkwBymMlHOiG+qLI="
+          crossorigin="anonymous"></script>
 <script>
   const socket = io();
   const messageForm = document.getElementById('send-container');
@@ -25,29 +42,39 @@
   const messageContainer = document.getElementById('message-container');
 
   var naziv;
-  const ime = prompt("Unesi svoje ime: ");
+  const ime = prompt("Your username: ");
   socket.emit('ime-usera', ime);
 
   socket.on('poruka', data => {
-    console.log('ulazi' + data);
         appendMessage(data);
   })
 
   socket.on('user-konekcija', ime => {
     naziv = ime;
   })
-  messageForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const message = messageInput.value;
-    socket.emit('send-chat-message', message);
-    messageInput.value = '';
+
+  $('#send-container').on('mousedown keydown', e => {
+    if (e.key === 'Enter' || $(e.target).is('button')) {
+      e.preventDefault();
+      const message = messageInput.value;
+      socket.emit('send-chat-message', message);
+      messageInput.value = '';
+    }
   })
 
   function appendMessage(message) {
+
     const messageElement = document.createElement('li');
+    const usernameStyle = document.createElement('span');
+
     messageElement.className = "list-group-item";
-    messageElement.appendChild(document.createTextNode(message.ime + ": " + message.message));
-    messageContainer.appendChild(messageElement);
+    let username = document.createTextNode(message.ime);
+    usernameStyle.style.fontWeight = 'bold';
+
+    usernameStyle.append(username);
+    messageElement.append(usernameStyle);
+    messageElement.append(document.createTextNode(": " + message.message));
+    messageContainer.append(messageElement);
   }
 
 </script>

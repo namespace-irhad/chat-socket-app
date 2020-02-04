@@ -6,3 +6,14 @@ body {
 a {
   color: #00B7FF;
 }
+
+.container-box {
+  background: aliceblue;
+  padding: 20px;
+}
+
+@media screen and (max-width: 992px) {
+  .container {
+    width: 100% !important;
+  }
+}
