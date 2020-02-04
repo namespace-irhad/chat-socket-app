@@ -1,6 +1,7 @@
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background: #b0d9da !important;
 }
 
 a {
@@ -12,8 +13,18 @@ a {
   padding: 20px;
 }
 
-@media screen and (max-width: 992px) {
-  .container {
-    width: 100% !important;
+#message-container {
+  height: 300px;
+  overflow: scroll;
+  overflow-x: hidden;
+}
+
+@media screen and (max-width: 900px) {
+  body {
+    padding: 0;
+  }
+  .container, .container-box {
+    min-width: 100% !important;
+    margin: 0 !important;
   }
 }

@@ -92,13 +92,32 @@ function onListening() {
 
 //SOCKETI
 
-const useri = [];
+const msgModel = require('../models/comments');
+const mongoose = require('mongoose');
 
-io.on("connection", socket=> {
-  console.log("user connected " + socket.id);
+function sendDB(msg, user) {
+  const newMessage = new msgModel({
+    _id: new mongoose.Types.ObjectId(),
+    username: user,
+    message: msg
+  });
+  newMessage.save().catch(err => console.log(err));
+}
+
+const useri = {};
+
+io.on("connection", socket => {
+  console.log("user connected", socket.id);
+
+  if (useri[socket.id] == undefined) {
+    socket.emit('first-time-user');
+  }
 
   socket.on('send-chat-message', message => {
-    console.log(message);
+    //console.log(message);
+
+    sendDB(message, useri[socket.id]);
+
     io.sockets.emit('poruka', {
       message : message,
       ime : useri[socket.id]
@@ -106,8 +125,8 @@ io.on("connection", socket=> {
 
   });
   socket.on('ime-usera', ime => {
+    console.log('User connected', ime);
     useri[socket.id] = ime;
-    console.log(ime)
     socket.broadcast.emit('user-konekcija', ime);
   });
 });

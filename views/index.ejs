@@ -20,17 +20,23 @@
     </div>
 
   <ul id="message-container" class="list-group">
+    <span id="msg-receive"></span>
+    <% msg.forEach(m => {%>
+    <li id="lista-msg" class="list-group-item">
+      <span><strong><%= m.username %></strong> : <%= m.message %></span>
+    </li>
+    <%})%>
   </ul>
 
   <form id = "send-container">
     <div  class="form-group">
-      <label for="exampleFormControlTextarea1">Chat Room</label>
+      <br>
       <textarea class="form-control" id="message-input" rows="3"></textarea>
     </div>
-    <button type="submit" id="send-button" class="btn btn-primary mb-2">Write</button>
+    <div class="bg-primary text-light p-2 text-center">Enter Key</div>
   </form>
   </div>
-  </body>
+
   <script
           src="https://code.jquery.com/jquery-3.4.1.slim.js"
           integrity="sha256-BTlTdQO9/fascB1drekrDVkaKd9PkwBymMlHOiG+qLI="
@@ -42,23 +48,32 @@
   const messageContainer = document.getElementById('message-container');
 
   var naziv;
-  const ime = prompt("Your username: ");
-  socket.emit('ime-usera', ime);
+
+    $(function() {
+      const ime = prompt("Enter your username: ");
+      if (ime) {
+        console.log('Entered Username:',ime)
+        socket.emit('ime-usera', ime);
+      }
+    });
 
   socket.on('poruka', data => {
         appendMessage(data);
   })
 
   socket.on('user-konekcija', ime => {
+    console.log('ovo je ime', ime)
     naziv = ime;
   })
 
-  $('#send-container').on('mousedown keydown', e => {
-    if (e.key === 'Enter' || $(e.target).is('button')) {
+  $('#send-container').on('keydown', e => {
+    if (e.key === 'Enter') {
       e.preventDefault();
       const message = messageInput.value;
-      socket.emit('send-chat-message', message);
-      messageInput.value = '';
+      if (message.length > 0) {
+        socket.emit('send-chat-message', message);
+        messageInput.value = '';
+      }
     }
   })
 
@@ -66,16 +81,23 @@
 
     const messageElement = document.createElement('li');
     const usernameStyle = document.createElement('span');
+    const messageStyle = document.createElement('span');
 
     messageElement.className = "list-group-item";
+    messageElement.style.float = 'left';
     let username = document.createTextNode(message.ime);
+    let messageAppend = document.createTextNode(": " + message.message);
     usernameStyle.style.fontWeight = 'bold';
+    messageStyle.style.overflowWrap = 'break-word';
+
 
     usernameStyle.append(username);
+    messageStyle.append(messageAppend);
     messageElement.append(usernameStyle);
-    messageElement.append(document.createTextNode(": " + message.message));
-    messageContainer.append(messageElement);
+    messageElement.append(messageStyle);
+    messageContainer.prepend(messageElement);
   }
 
 </script>
+  </body>
 </html>
